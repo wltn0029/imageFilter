@@ -3,6 +3,10 @@ package com.example.q.imagefilter;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.DrawableRes;
@@ -169,17 +173,32 @@ public class MainActivity extends AppCompatActivity implements FilterAdapter.OnF
 
             @Override
             protected void onPreExecute() {
+                Log.d("***check","preexecute for setimage");
                 setBusy(true, true);
                 start = System.nanoTime();
             }
 
             @Override
             protected Bitmap[] doInBackground(Bitmap... bitmaps) {
+                Log.d("***check","background job for setimage");
                 Bitmap bitmap1 = bitmaps[0];
                 if (bitmap1 == null) {
                     bitmap1 = BitmapFactory.decodeResource(getResources(), resource);
                 }
-                Bitmap bitmap2 = bitmap1;
+                Bitmap original = BitmapFactory.decodeResource(getResources(),resource);
+                Bitmap mask = BitmapFactory.decodeResource(getResources(),R.drawable.mask);
+                int intWidth = original.getWidth();
+                int intHeight = original.getHeight();
+                Bitmap resultMaskBitmap = Bitmap.createBitmap(intWidth,intHeight,Bitmap.Config.ARGB_8888);
+                Bitmap getMaskBitmap = Bitmap.createScaledBitmap(mask,intWidth,intHeight,true);
+                Canvas mCanvas = new Canvas(resultMaskBitmap);
+                Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+                mCanvas.drawBitmap(original, 0, 0, null);
+                mCanvas.drawBitmap(getMaskBitmap, 0, 0, paint);
+                paint.setXfermode(null);
+                bitmap1 =  resultMaskBitmap;
+                Bitmap bitmap2 = resultMaskBitmap;
                 publishProgress(bitmap1);
                 if (bitmap1 != null && !fullRes) {
                     int measuredHeight = ivImage.getMeasuredHeight();
@@ -202,11 +221,13 @@ public class MainActivity extends AppCompatActivity implements FilterAdapter.OnF
 
             @Override
             protected void onProgressUpdate(Bitmap... bitmaps) {
+                Log.d("***check","progressupdate for setimage");
                 ivImage.setImageBitmap(bitmaps[0]);
             }
 
             @Override
             protected void onPostExecute(Bitmap[] bitmap) {
+                Log.d("***check","postexecute for setimage");
                 originalBitmap = bitmap[0];
                 filterBitmap = bitmap[1];
                 ivImage.setImageBitmap(filterBitmap);
@@ -232,12 +253,18 @@ public class MainActivity extends AppCompatActivity implements FilterAdapter.OnF
 
             @Override
             protected void onPreExecute() {
+                Log.d("***check","preexecute for filterclicked");
                 setBusy(true, false);
                 start = System.nanoTime();
             }
 
             @Override
             protected Bitmap doInBackground(Void... voids) {
+
+                Log.d("***check","background job for filterclicked");
+
+//                Bitmap bitmap2 = resultMaskBitmap;
+//                publishProgress(bitmap1);
                 if (lastFilterSelection == null || filterBitmap == null) {
                     return filterBitmap;
                 }
@@ -255,7 +282,24 @@ public class MainActivity extends AppCompatActivity implements FilterAdapter.OnF
 
             @Override
             protected void onPostExecute(Bitmap bitmap) {
+
+                Log.d("***check","post execute for filterclicked");
+                Log.d("***check","bitmap :"+ bitmap.toString());
+                Log.d("***check","filteredbitmap : "+filterBitmap.toString() );
+                Bitmap mask = BitmapFactory.decodeResource(getResources(),R.drawable.mask);
+                int intWidth = bitmap.getWidth();
+                int intHeight = bitmap.getHeight();
+                Bitmap resultMaskBitmap = Bitmap.createBitmap(intWidth,intHeight,Bitmap.Config.ARGB_8888);
+                Bitmap getMaskBitmap = Bitmap.createScaledBitmap(mask,intWidth,intHeight,true);
+                Canvas mCanvas = new Canvas(resultMaskBitmap);
+                Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+                mCanvas.drawBitmap(bitmap, 0, 0, null);
+                mCanvas.drawBitmap(getMaskBitmap, 0, 0, paint);
+                paint.setXfermode(null);
+                bitmap =  resultMaskBitmap;
                 ivImage.setImageBitmap(bitmap);
+
                 setBusy(false, false);
                 if (bitmap == null) {
                     Log.d(TAG, String.format("processing bitmap failed in %.2fms", (System.nanoTime() - start) / 1e6f));
