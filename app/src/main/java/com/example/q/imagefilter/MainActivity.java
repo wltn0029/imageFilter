@@ -10,6 +10,7 @@ import android.graphics.PorterDuffXfermode;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.DrawableRes;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -21,6 +22,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -42,10 +44,11 @@ public class MainActivity extends AppCompatActivity implements FilterAdapter.OnF
     private TextView tvName;
     private ProgressBar pbBusy;
     private RecyclerView rvFilters;
-
+    private ViewPager viewPager;
     private Bitmap originalBitmap, filterBitmap;
     private final List<FilterSelection> effectItems = new LinkedList<>();
     private FilterSelection lastFilterSelection;
+    public static Bitmap userImageBitmap;
 
     private boolean fullRes = false;
 
@@ -54,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements FilterAdapter.OnF
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        tvName = findViewById(R.id.tv_name);
+//        tvName = findViewById(R.id.tv_name);
         ivImage = findViewById(R.id.iv_image2);
         pbBusy = findViewById(R.id.pb_busy);
         final Resources resources = getResources();
@@ -73,9 +76,7 @@ public class MainActivity extends AppCompatActivity implements FilterAdapter.OnF
                         .withAlignmentMode(LutAlignment.Mode.HALD);
 
         addFilter("none", EasyLUT.createNonFilter());
-        addFilter("identity_square_2", squareRgb.withLutBitmapId(R.drawable.identity_square_2).createFilter());
         addFilter("identity_square_8", squareRgb.withLutBitmapId(R.drawable.identity_square_8).createFilter());
-        addFilter("identity_hald_2", haldRgb.withLutBitmapId(R.drawable.identity_hald_2).createFilter());
         addFilter("identity_hald_8", haldRgb.withLutBitmapId(R.drawable.identity_hald_8).createFilter());
         addFilter("square_4_brg", squareBrg.withLutBitmapId(R.drawable.filter_square_4_brg).createFilter());
         addFilter("square_8_00", squareRgb.withLutBitmapId(R.drawable.filter_square_8_00).createFilter());
@@ -89,10 +90,6 @@ public class MainActivity extends AppCompatActivity implements FilterAdapter.OnF
         addFilter("square_8_08", squareRgb.withLutBitmapId(R.drawable.filter_square_8_08).createFilter());
         addFilter("square_8_09", squareRgb.withLutBitmapId(R.drawable.filter_square_8_09).createFilter());
         addFilter("square_8_09", squareRgb.withLutBitmapId(R.drawable.filter_square_8_09).createFilter());
-        addFilter("square_8_vga", squareRgb.withLutBitmapId(R.drawable.filter_square_8_vga).createFilter());
-        addFilter("square_8_ega", squareRgb.withLutBitmapId(R.drawable.filter_square_8_ega).createFilter());
-        addFilter("square_8_nintendo", squareRgb.withLutBitmapId(R.drawable.filter_square_8_nintendo).createFilter());
-        addFilter("square_8_sega", squareRgb.withLutBitmapId(R.drawable.filter_square_8_sega).createFilter());
         addFilter("wide_4_00", squareRgb.withLutBitmapId(R.drawable.filter_wide_4_00).createFilter());
         addFilter("wide_4_01", squareRgb.withLutBitmapId(R.drawable.filter_wide_4_01).createFilter());
         addFilter("wide_4_02", squareRgb.withLutBitmapId(R.drawable.filter_wide_4_02).createFilter());
@@ -104,17 +101,15 @@ public class MainActivity extends AppCompatActivity implements FilterAdapter.OnF
         addFilter("wide_8_bgr", squareBgr.withLutBitmapId(R.drawable.filter_wide_8_bgr).createFilter());
         addFilter("hald_8_00", haldRgb.withLutBitmapId(R.drawable.filter_hald_8_00).createFilter());
         addFilter("hald_8_01", haldRgb.withLutBitmapId(R.drawable.filter_hald_8_01).createFilter());
-        addFilter("hald_8_02", haldRgb.withLutBitmapId(R.drawable.filter_hald_8_02).createFilter());
-        addFilter("hald_8_03", haldRgb.withLutBitmapId(R.drawable.filter_hald_8_03).createFilter());
-        addFilter("hald_8_04", haldRgb.withLutBitmapId(R.drawable.filter_hald_8_04).createFilter());
 
         rvFilters.setLayoutManager(new LinearLayoutManager(this));
         rvFilters.setAdapter(new FilterAdapter(effectItems, this));
+        userImageBitmap = BitmapFactory.decodeResource(resources,R.drawable.europe);
 //        R.integer.maximum
         ivImage.post(new Runnable() {
             @Override
             public void run() {
-                setImage(R.drawable.europe);
+                setImage(userImageBitmap);
             }
         });
     }
@@ -125,25 +120,25 @@ public class MainActivity extends AppCompatActivity implements FilterAdapter.OnF
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_identity:
-                item.setChecked(!item.isChecked());
-                if (item.isChecked()) {
-                    setImage(R.drawable.identity_square_8);
-                } else {
-                    setImage(R.drawable.landscape);
-                }
-                return true;
-            case R.id.action_full_res:
-                item.setChecked(!item.isChecked());
-                fullRes = item.isChecked();
-                setImage(originalBitmap, 0);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        switch (item.getItemId()) {
+//            case R.id.action_identity:
+//                item.setChecked(!item.isChecked());
+//                if (item.isChecked()) {
+//                    setImage(R.drawable.identity_square_8);
+//                } else {
+//                    setImage(R.drawable.landscape);
+//                }
+//                return true;
+//            case R.id.action_full_res:
+//                item.setChecked(!item.isChecked());
+//                fullRes = item.isChecked();
+//                setImage(originalBitmap, 0);
+//                return true;
+//        }
+//        return super.onOptionsItemSelected(item);
+//    }
 
     private void addFilter(String name, Filter filter) {
         effectItems.add(new FilterSelection(name.toUpperCase(Locale.ENGLISH), filter));
@@ -154,19 +149,19 @@ public class MainActivity extends AppCompatActivity implements FilterAdapter.OnF
             pbBusy.animate().alpha(1f).start();
             pbBusy.setVisibility(View.VISIBLE);
             ivImage.animate().alpha(removeImage ? 0f : 0.5f).start();
-            tvName.animate().alpha(0f).start();
+//            tvName.animate().alpha(0f).start();
         } else {
             ivImage.animate().alpha(1f).start();
-            tvName.animate().alpha(1f).start();
+//            tvName.animate().alpha(1f).start();
             pbBusy.animate().alpha(0f).start();
         }
     }
 
-    private void setImage(@DrawableRes final int resource) {
-        setImage(null, resource);
-    }
+//    private void setImage(@DrawableRes final int resource) {
+//        setImage(null, resource);
+//    }
 
-    private void setImage(Bitmap bitmap, @DrawableRes final int resource) {
+    private void setImage(Bitmap bitmap) {
         new AsyncTask<Bitmap, Bitmap, Bitmap[]>() {
 
             long start;
@@ -183,18 +178,17 @@ public class MainActivity extends AppCompatActivity implements FilterAdapter.OnF
                 Log.d("***check","background job for setimage");
                 Bitmap bitmap1 = bitmaps[0];
                 if (bitmap1 == null) {
-                    bitmap1 = BitmapFactory.decodeResource(getResources(), resource);
+                    Log.d("***check","null bitmap");
                 }
-                Bitmap original = BitmapFactory.decodeResource(getResources(),resource);
                 Bitmap mask = BitmapFactory.decodeResource(getResources(),R.drawable.mask);
-                int intWidth = original.getWidth();
-                int intHeight = original.getHeight();
+                int intWidth = bitmap1.getWidth();
+                int intHeight = bitmap1.getHeight();
                 Bitmap resultMaskBitmap = Bitmap.createBitmap(intWidth,intHeight,Bitmap.Config.ARGB_8888);
                 Bitmap getMaskBitmap = Bitmap.createScaledBitmap(mask,intWidth,intHeight,true);
                 Canvas mCanvas = new Canvas(resultMaskBitmap);
                 Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
                 paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
-                mCanvas.drawBitmap(original, 0, 0, null);
+                mCanvas.drawBitmap(bitmap1, 0, 0, null);
                 mCanvas.drawBitmap(getMaskBitmap, 0, 0, paint);
                 paint.setXfermode(null);
                 bitmap1 =  resultMaskBitmap;
@@ -245,8 +239,9 @@ public class MainActivity extends AppCompatActivity implements FilterAdapter.OnF
     @Override
     public void onFilterClicked(FilterSelection filterSelection) {
         lastFilterSelection = filterSelection;
-        tvName.setVisibility(View.VISIBLE);
-        tvName.setText(filterSelection == null ? "NONE" : filterSelection.name);
+//        tvName.setVisibility(View.VISIBLE);
+//        tvName.setText(filterSelection == null ? "NONE" : filterSelection.name);
+//        Toast.makeText(getApplicationContext(),"Filter "+filterSelection == null ? "NONE" : filterSelection.name +" is selected",Toast.LENGTH_SHORT).show();
         new AsyncTask<Void, Void, Bitmap>() {
 
             long start;
@@ -299,7 +294,6 @@ public class MainActivity extends AppCompatActivity implements FilterAdapter.OnF
                 paint.setXfermode(null);
                 bitmap =  resultMaskBitmap;
                 ivImage.setImageBitmap(bitmap);
-
                 setBusy(false, false);
                 if (bitmap == null) {
                     Log.d(TAG, String.format("processing bitmap failed in %.2fms", (System.nanoTime() - start) / 1e6f));
