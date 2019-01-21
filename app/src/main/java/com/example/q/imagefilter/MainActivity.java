@@ -46,17 +46,19 @@ public class MainActivity extends AppCompatActivity implements FilterAdapter.OnF
     private RecyclerView rvFilters;
     private ViewPager viewPager;
     private Bitmap originalBitmap, filterBitmap;
-    private final List<FilterSelection> effectItems = new LinkedList<>();
+    public static List<FilterSelection> effectItems = new LinkedList<>();
     private FilterSelection lastFilterSelection;
     public static Bitmap userImageBitmap;
-
+    public static Resources resources;
     private boolean fullRes = false;
-
+    private String dir;
+    private int curFilter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        resources = getResources();
+        curFilter = 1;
 //        tvName = findViewById(R.id.tv_name);
         ivImage = findViewById(R.id.iv_image2);
         pbBusy = findViewById(R.id.pb_busy);
@@ -226,7 +228,21 @@ public class MainActivity extends AppCompatActivity implements FilterAdapter.OnF
                 filterBitmap = bitmap[1];
                 ivImage.setImageBitmap(filterBitmap);
                 setBusy(false, true);
-                onFilterClicked(lastFilterSelection);
+                ivImage.setOnTouchListener(new OnSwipeTouchListener(MainActivity.this){
+                    public void onSwipeRight(){
+                        dir = "right";
+                        curFilter = (curFilter+1)%effectItems.size();
+                        lastFilterSelection = effectItems.get(curFilter);
+                        onFilterClicked(lastFilterSelection);
+                    }
+                    public void onSwipeLeft(){
+                        dir = "left";
+                        curFilter = (curFilter-1+effectItems.size())%effectItems.size();
+                        lastFilterSelection = effectItems.get(curFilter);
+                        onFilterClicked(lastFilterSelection);
+                    }
+                });
+//                onFilterClicked(lastFilterSelection);
                 if (filterBitmap == null) {
                     Log.d(TAG, String.format("loading bitmap failed in %.2fms", (System.nanoTime() - start) / 1e6f));
                 } else {

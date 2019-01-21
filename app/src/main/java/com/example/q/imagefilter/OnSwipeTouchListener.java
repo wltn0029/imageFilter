@@ -10,11 +10,17 @@ import android.view.View.OnTouchListener;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
+
+import hu.don.easylut.EasyLUT;
+import hu.don.easylut.filter.Filter;
+import hu.don.easylut.filter.LutFilterFromResource;
+import hu.don.easylut.lutimage.CoordinateToColor;
+import hu.don.easylut.lutimage.LutAlignment;
 
 public class OnSwipeTouchListener implements OnTouchListener {
-    private final GestureDetector gestureDetector;
+    private GestureDetector gestureDetector;
     private Bitmap originalBitmap, filterBitmap;
-    private final List<FilterSelection> effectItems = new LinkedList<>();
     private FilterSelection lastFilterSelection;
     private boolean fullRes = false;
 
@@ -81,4 +87,6 @@ public class OnSwipeTouchListener implements OnTouchListener {
 
     public void onSwipeBottom() {
     }
+
 }
+
